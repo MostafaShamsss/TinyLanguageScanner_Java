@@ -6,7 +6,7 @@ public class Scanner
 
     public static void main(String[] args)
     {
-        String inputLine = new String(" 1+100= 100 ");
+        String inputLine = new String(" dfdfd1+100= x {sdsdsds  32 3 }{s}");
         ArrayList<Character> charArray = new ArrayList<Character>();
         String [] reservedWords = {"if","then","else","end","repeat","until","read","write"};
         States currentState =States.START;
@@ -16,6 +16,8 @@ public class Scanner
         String identifier1 = new String();
         ArrayList<String> numberList= new ArrayList<String>();
         String number1 = new String();
+        ArrayList<String> commentList= new ArrayList<String>();
+        String comment1 = new String();
         ArrayList<Token> tokenList = new ArrayList<Token>();
         for (char c : inputLine.toCharArray())
         {
@@ -54,9 +56,18 @@ public class Scanner
 
 
                 case INCOMMENT:
+
                     if (currentChar.matches("[}]")) {
+                        commentList.add(comment1);
+                        comment1="";
                         currentState = States.START;
                     }
+                    if (currentChar.matches("[^\n}]")) {
+
+                        comment1+=currentChar;
+                        currentState = States.INCOMMENT;
+                    }
+
                     break;
 
 
@@ -139,7 +150,7 @@ public class Scanner
 
                 case INASSIGN:
                     if (currentChar.matches("[=]")) {
-                        currentState = States.DONE;
+                        currentState = States.START;
                     }
                     break;
 
@@ -147,6 +158,7 @@ public class Scanner
                 case DONE:
                     identifierList.add(identifier1);
                     identifier1="";
+                    numberList.add(number1);
                     number1="";
                     break;
 
@@ -187,14 +199,19 @@ public class Scanner
                 currentState =States.INASSIGN;
             }*/
         }
-        /*for(int i=0; i<identifierList.size(); i++)
+        for(int i=0; i<identifierList.size(); i++)
         {
             System.out.println("identifier is: "+identifierList.get(i));
-        }*/
+        }
 
         for(int i=0; i<numberList.size(); i++)
         {
             System.out.println("number is: "+numberList.get(i));
+        }
+
+        for(int i=0; i<commentList.size(); i++)
+        {
+            System.out.println("comment "+(i+1)+ " is: "+commentList.get(i));
         }
     }
 }
