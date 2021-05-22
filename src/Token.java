@@ -1,10 +1,16 @@
 public class Token
 {
     public String tokenValue;
-    public String tokenType;
-    public Token(String tokenValue, String tokenType)
+    public TokenType tokenType;
+    public Token(String tokenValue, TokenType tokenType)
     {
         this.tokenValue = tokenValue;
         this.tokenType = tokenType;
     }
 }
+
+enum TokenType{
+    IDENTIFIER,
+    OPERATOR,
+
+        }

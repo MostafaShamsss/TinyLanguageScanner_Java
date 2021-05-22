@@ -1,5 +1,3 @@
-import javax.swing.plaf.nimbus.State;
-import java.nio.ReadOnlyBufferException;
 import java.util.ArrayList;
 
 public class Scanner
@@ -8,7 +6,7 @@ public class Scanner
 
     public static void main(String[] args)
     {
-        String inputLine = new String("read x; {shs shsh shs}ss ss");
+        String inputLine = new String(" 1+100= 100 ");
         ArrayList<Character> charArray = new ArrayList<Character>();
         String [] reservedWords = {"if","then","else","end","repeat","until","read","write"};
         States currentState =States.START;
@@ -32,14 +30,14 @@ public class Scanner
                 case START:
                     if (currentChar.matches("[a-zA-Z]"))
                     {
-                        identifier1.concat(currentChar);
+                        identifier1+=currentChar;
                         currentState = States.INID;
                     }
                     if (currentChar.matches(" ")) {
                         currentState = States.START;
                     }
                     if (currentChar.matches("[0-9]")) {
-                        previousState = States.START;
+                        number1+=currentChar;
                         currentState = States.INNUM;
                     }
                     if (currentChar.matches("[{]")) {
@@ -50,7 +48,7 @@ public class Scanner
                     }
                     if(currentChar.matches("[+|-|*|/|=|<|>|(|)|,|;]"))
                     {
-                        currentState = States.DONE;
+                        currentState = States.START;
                     }
                     break;
 
@@ -65,37 +63,42 @@ public class Scanner
                 case INID:
                     if (currentChar.matches("[a-zA-Z]"))
                     {
-                        identifier1.concat(currentChar);
+                        identifier1+=currentChar;
+
+                        /*if(currentChar=="\n")
+                        {
+                            identifierList.add(identifier1);
+                            identifier1="";
+                        }*/
                         currentState = States.INID;
                     }
                     if (currentChar.matches(" ")) {
                         identifierList.add(identifier1);
-                        identifier1 = new String();
+                        identifier1 = "";
                         currentState = States.START;
                     }
                     if (currentChar.matches("[0-9]")) {
 
-                        identifier1.concat(currentChar);
-                        previousState = States.INID;
-                        currentState = States.INNUM;
+                        identifier1+=currentChar;
+                        currentState = States.INID;
                     }
                     if (currentChar.matches("[{]")) {
 
                         identifierList.add(identifier1);
-                        identifier1 = new String();
+                        identifier1 = "";
                         currentState = States.INCOMMENT;
                     }
                     if (currentChar.matches("[:]")) {
 
                         identifierList.add(identifier1);
-                        identifier1 = new String();
+                        identifier1 = "";
                         currentState = States.INASSIGN;
                     }
                     if(currentChar.matches("[+|-|*|/|=|<|>|(|)|,|;]"))
                     {
                         identifierList.add(identifier1);
-                        identifier1 = new String();
-                        currentState = States.DONE;
+                        identifier1 = "";
+                        currentState = States.START;
                     }
                     break;
 
@@ -103,56 +106,33 @@ public class Scanner
                 case INNUM:
                     if (currentChar.matches("[a-zA-Z]")) {
 
-                        identifier1.concat(currentChar);
+                        identifier1+=currentChar;
                         currentState = States.INID;
                     }
                     if (currentChar.matches(" ")) {
 
-                        if(previousState==States.INID)
-                        {
-                            identifierList.add(identifier1);
-                            identifier1 = new String();
-                        }
-
-                        if(previousState==States.START)
-                        {
-                            numberList.add(number1);
-                            number1 = new String();
-                        }
-
+                        numberList.add(number1);
+                        number1 = "";
                         currentState = States.START;
                     }
                     if (currentChar.matches("[0-9]")) {
 
-                        number1.concat(currentChar).toString();
+                        number1+=currentChar;
                         currentState = States.INNUM;
                     }
                     if (currentChar.matches("[{]")) {
 
-                        if(previousState==States.INID)
-                        {
-                            identifierList.add(identifier1);
-                            identifier1 = new String();
-                        }
                         currentState = States.INCOMMENT;
                     }
                     if (currentChar.matches("[:]")) {
 
-                        if(previousState==States.INID)
-                        {
-                            identifierList.add(identifier1);
-                            identifier1 = new String();
-                        }
                         currentState = States.INASSIGN;
                     }
                     if(currentChar.matches("[+|-|*|/|=|<|>|(|)|,|;]"))
                     {
-                        if(previousState==States.INID)
-                        {
-                            identifierList.add(identifier1);
-                            identifier1 = new String();
-                        }
-                        currentState = States.DONE;
+                        numberList.add(number1);
+                        number1 = "";
+                        currentState = States.START;
                     }
                     break;
 
@@ -164,7 +144,11 @@ public class Scanner
                     break;
 
 
-                default: //done state
+                case DONE:
+                    identifierList.add(identifier1);
+                    identifier1="";
+                    number1="";
+                    break;
 
             }
 
@@ -202,6 +186,15 @@ public class Scanner
             {
                 currentState =States.INASSIGN;
             }*/
+        }
+        /*for(int i=0; i<identifierList.size(); i++)
+        {
+            System.out.println("identifier is: "+identifierList.get(i));
+        }*/
+
+        for(int i=0; i<numberList.size(); i++)
+        {
+            System.out.println("number is: "+numberList.get(i));
         }
     }
 }
