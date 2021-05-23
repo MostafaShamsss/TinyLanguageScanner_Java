@@ -1,14 +1,16 @@
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Scanner
 {
-
+//remaining: INASSIGN, GUI
 
     public static void main(String[] args)
     {
-        String inputLine = new String(" dfdfd1+100= x {sdsdsds  32 3 }{s}");
+        String inputLine = new String("read dfdfd1+100= x {sdsdsds  32 3 }{s}");
         ArrayList<Character> charArray = new ArrayList<Character>();
-        String [] reservedWords = {"if","then","else","end","repeat","until","read","write"};
+        List reservedWords = Arrays.asList("if","then","else","end","repeat","until","read","write");
         States currentState =States.START;
         States previousState = States.START;
         //int k, j=0;
@@ -18,6 +20,7 @@ public class Scanner
         String number1 = new String();
         ArrayList<String> commentList= new ArrayList<String>();
         String comment1 = new String();
+        ArrayList<String> reservedWordsList= new ArrayList<String>();
         ArrayList<Token> tokenList = new ArrayList<Token>();
         for (char c : inputLine.toCharArray())
         {
@@ -84,8 +87,15 @@ public class Scanner
                         currentState = States.INID;
                     }
                     if (currentChar.matches(" ")) {
-                        identifierList.add(identifier1);
-                        identifier1 = "";
+
+                        if(reservedWords.contains(identifier1)) {
+                            reservedWordsList.add(identifier1);
+                            identifier1="";
+                        }
+                        else{
+                            identifierList.add(identifier1);
+                            identifier1 = "";
+                        }
                         currentState = States.START;
                     }
                     if (currentChar.matches("[0-9]")) {
@@ -95,20 +105,38 @@ public class Scanner
                     }
                     if (currentChar.matches("[{]")) {
 
-                        identifierList.add(identifier1);
-                        identifier1 = "";
+                        if(reservedWords.contains(identifier1)) {
+                            reservedWordsList.add(identifier1);
+                            identifier1="";
+                        }
+                        else{
+                            identifierList.add(identifier1);
+                            identifier1 = "";
+                        }
                         currentState = States.INCOMMENT;
                     }
                     if (currentChar.matches("[:]")) {
 
-                        identifierList.add(identifier1);
-                        identifier1 = "";
+                        if(reservedWords.contains(identifier1)) {
+                            reservedWordsList.add(identifier1);
+                            identifier1="";
+                        }
+                        else{
+                            identifierList.add(identifier1);
+                            identifier1 = "";
+                        }
                         currentState = States.INASSIGN;
                     }
                     if(currentChar.matches("[+|-|*|/|=|<|>|(|)|,|;]"))
                     {
-                        identifierList.add(identifier1);
-                        identifier1 = "";
+                        if(reservedWords.contains(identifier1)) {
+                            reservedWordsList.add(identifier1);
+                            identifier1="";
+                        }
+                        else{
+                            identifierList.add(identifier1);
+                            identifier1 = "";
+                        }
                         currentState = States.START;
                     }
                     break;
@@ -212,6 +240,11 @@ public class Scanner
         for(int i=0; i<commentList.size(); i++)
         {
             System.out.println("comment "+(i+1)+ " is: "+commentList.get(i));
+        }
+
+        for(int i=0; i<reservedWordsList.size(); i++)
+        {
+            System.out.println("reserved word is: "+reservedWordsList.get(i));
         }
     }
 }
