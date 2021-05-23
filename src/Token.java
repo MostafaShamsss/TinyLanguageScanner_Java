@@ -7,10 +7,16 @@ public class Token
         this.tokenValue = tokenValue;
         this.tokenType = tokenType;
     }
+    String printToken() {
+    return tokenValue +" is type of "+tokenType.toString();
+    }
 }
+
 
 enum TokenType{
     IDENTIFIER,
     OPERATOR,
-
+    COMMENT,
+    ASSIGNMENT,
+    RESERVED_WORD
         }

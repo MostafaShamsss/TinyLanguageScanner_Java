@@ -6,18 +6,26 @@ public class Scanner
 
     public static void main(String[] args)
     {
-        String inputLine = new String(" dfdfd1+100= x {sdsdsds  32 3 }{s}");
+        String inputLine = new String("{sdsdsds  32 3 }{s}");
         ArrayList<Character> charArray = new ArrayList<Character>();
         String [] reservedWords = {"if","then","else","end","repeat","until","read","write"};
         States currentState =States.START;
-        States previousState = States.START;
-        //int k, j=0;
-        ArrayList<String> identifierList= new ArrayList<String>();
-        String identifier1 = new String();
-        ArrayList<String> numberList= new ArrayList<String>();
-        String number1 = new String();
-        ArrayList<String> commentList= new ArrayList<String>();
-        String comment1 = new String();
+        boolean nextState=false;
+
+
+        //created one variable that collects all characters
+        //called token. created a boolean called nextState which we use
+        //after DONE state
+        //to set currentState based on the current currentCharacter
+        // for example
+        // x;
+        // x will be considered as an identifier in IDENTIFIER State
+        //then when another character comes that does not match our identifier's regex
+        //we will move to OTHER State where we will set nextState to true
+        //and then move to DONE where we will tokenize "x" alone and then set current state
+        //based on ";" type
+
+        String token="";
         ArrayList<Token> tokenList = new ArrayList<Token>();
         for (char c : inputLine.toCharArray())
         {
@@ -27,142 +35,107 @@ public class Scanner
 
         for(int i=0; i<charArray.size(); i++) {
             String currentChar = charArray.get(i).toString();
-            switch (currentState) {
-
-                case START:
-                    if (currentChar.matches("[a-zA-Z]"))
-                    {
-                        identifier1+=currentChar;
-                        currentState = States.INID;
-                    }
-                    if (currentChar.matches(" ")) {
-                        currentState = States.START;
-                    }
-                    if (currentChar.matches("[0-9]")) {
-                        number1+=currentChar;
-                        currentState = States.INNUM;
-                    }
-                    if (currentChar.matches("[{]")) {
-                        currentState = States.INCOMMENT;
-                    }
-                    if (currentChar.matches("[:]")) {
-                        currentState = States.INASSIGN;
-                    }
-                    if(currentChar.matches("[+|-|*|/|=|<|>|(|)|,|;]"))
-                    {
-                        currentState = States.START;
-                    }
-                    break;
 
 
-                case INCOMMENT:
-
-                    if (currentChar.matches("[}]")) {
-                        commentList.add(comment1);
-                        comment1="";
-                        currentState = States.START;
-                    }
-                    if (currentChar.matches("[^\n}]")) {
-
-                        comment1+=currentChar;
-                        currentState = States.INCOMMENT;
-                    }
-
-                    break;
-
-
-                case INID:
-                    if (currentChar.matches("[a-zA-Z]"))
-                    {
-                        identifier1+=currentChar;
-
-                        /*if(currentChar=="\n")
-                        {
-                            identifierList.add(identifier1);
-                            identifier1="";
-                        }*/
-                        currentState = States.INID;
-                    }
-                    if (currentChar.matches(" ")) {
-                        identifierList.add(identifier1);
-                        identifier1 = "";
-                        currentState = States.START;
-                    }
-                    if (currentChar.matches("[0-9]")) {
-
-                        identifier1+=currentChar;
-                        currentState = States.INID;
-                    }
-                    if (currentChar.matches("[{]")) {
-
-                        identifierList.add(identifier1);
-                        identifier1 = "";
-                        currentState = States.INCOMMENT;
-                    }
-                    if (currentChar.matches("[:]")) {
-
-                        identifierList.add(identifier1);
-                        identifier1 = "";
-                        currentState = States.INASSIGN;
-                    }
-                    if(currentChar.matches("[+|-|*|/|=|<|>|(|)|,|;]"))
-                    {
-                        identifierList.add(identifier1);
-                        identifier1 = "";
-                        currentState = States.START;
-                    }
-                    break;
-
-
-                case INNUM:
+                if(currentState==States.START) {
                     if (currentChar.matches("[a-zA-Z]")) {
 
-                        identifier1+=currentChar;
                         currentState = States.INID;
                     }
                     if (currentChar.matches(" ")) {
-
-                        numberList.add(number1);
-                        number1 = "";
                         currentState = States.START;
+                        continue;
                     }
                     if (currentChar.matches("[0-9]")) {
 
-                        number1+=currentChar;
                         currentState = States.INNUM;
                     }
                     if (currentChar.matches("[{]")) {
-
                         currentState = States.INCOMMENT;
                     }
                     if (currentChar.matches("[:]")) {
-
                         currentState = States.INASSIGN;
                     }
-                    if(currentChar.matches("[+|-|*|/|=|<|>|(|)|,|;]"))
-                    {
-                        numberList.add(number1);
-                        number1 = "";
+                    if (currentChar.matches("[+|-|*|/|=|<|>|(|)|,|;]")) {
+                        tokenList.add(new Token(currentChar,TokenType.OPERATOR));
+                        token="";
+                        nextState=false;
                         currentState = States.START;
                     }
-                    break;
+
+                }
+
+                else if(currentState==States.INCOMMENT) {
+
+                    if (currentChar.matches("[}]")) {
+                        currentState = States.DONE;
+                    }
+                    else {
+                        currentState = States.INCOMMENT;
+                    }
+                }
 
 
-                case INASSIGN:
+
+                else if(currentState==States.INID) {
+                    if (currentChar.matches("[a-zA-Z_0-9]")) {
+                        currentState = States.INID;
+                    }
+                    else if (currentChar.matches(" ")) {
+                        currentState = States.DONE;
+                    }
+                    else{
+                        currentState=States.OTHER;
+                    }
+                }
+
+
+                else if(currentState== States.INNUM) {
+
+                    if (currentChar.matches("[0-9]")) {
+
+                        currentState = States.INNUM;
+                    }
+                    else if (currentChar.matches(" ")) {
+
+                        currentState = States.DONE;
+                    }
+                    else{
+                        currentState = States.OTHER;
+                    }
+                }
+
+
+                else if(currentState==States.INASSIGN) {
                     if (currentChar.matches("[=]")) {
-                        currentState = States.START;
+                        currentState = States.DONE;
                     }
-                    break;
+                    else {
+                        currentState=States.OTHER;
+                    }
+                }
+
+                if(currentState==States.OTHER)
+                {
+                    currentState=States.DONE;
+                    nextState=true;
+                }
+
+                if(currentState!=States.OTHER)
+                {
+                    token+=currentChar;
+                }
+
+                 if(currentState==States.DONE)
+                 {
+                     if(token.matches("^\\{.+}")){
+                        tokenList.add(new Token(token, TokenType.COMMENT));
+                     }
+                     token="";
+                     currentState=States.START;
+                 }
 
 
-                case DONE:
-                    identifierList.add(identifier1);
-                    identifier1="";
-                    numberList.add(number1);
-                    number1="";
-                    break;
-
-            }
 
             /*String identifier1 = new String();
 
@@ -199,20 +172,11 @@ public class Scanner
                 currentState =States.INASSIGN;
             }*/
         }
-        for(int i=0; i<identifierList.size(); i++)
+        for(int i=0; i<tokenList.size();i++)
         {
-            System.out.println("identifier is: "+identifierList.get(i));
+            System.out.println(tokenList.get(i).printToken());
         }
 
-        for(int i=0; i<numberList.size(); i++)
-        {
-            System.out.println("number is: "+numberList.get(i));
-        }
-
-        for(int i=0; i<commentList.size(); i++)
-        {
-            System.out.println("comment "+(i+1)+ " is: "+commentList.get(i));
-        }
     }
 }
 enum States{
@@ -221,5 +185,6 @@ enum States{
     INID,
     INASSIGN,
     INCOMMENT,
+    OTHER,
     DONE
 }
